@@ -1,0 +1,535 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+ 
+namespace RomanNumeralConverter
+{
+    class Program
+    {
+        Boolean RtoD; // true if converting from Roman numerals to base 10
+        string input; // user input
+ 
+        /* Decimal to Roman numerals */
+        int inputInt;
+        string output;
+        int ones;
+        string outputOnes;
+        int tens;
+        string outputTens;
+        int hundreds;
+        string outputHundreds;
+        int thousands;
+        string outputThousands;
+ 
+        /* Roman numerals to decimal */
+        string macrons; // line above numerals
+        int val;
+        readonly int I = 0;
+        readonly int V = 1;
+        readonly int X = 2;
+        readonly int L = 3;
+        readonly int C = 4;
+        readonly int D = 5;
+        readonly int M = 6;
+       
+        static void Main(string[] args)
+        {
+            Program pgram = new Program();
+ 
+            pgram.begin();
+            pgram.RtoD = Convert.ToBoolean(Console.ReadLine());
+ 
+            while (!pgram.RtoD) // Decimal to Roman
+            {
+                pgram.resetVals();
+                pgram.receiveInput();
+ 
+                pgram.initializeVals();
+ 
+                // convert into Roman numerals one number at a time
+                pgram.firstNumber();
+                pgram.secondNumber();
+                pgram.thirdNumber();
+                pgram.fourthNumber();
+ 
+                pgram.output = pgram.outputThousands + pgram.outputHundreds + pgram.outputTens + pgram.outputOnes;
+ 
+                pgram.getMacronPosition();
+ 
+                Console.WriteLine(pgram.macrons);
+                Console.WriteLine("In Roman numerals: " + pgram.output);
+                Console.ReadLine();
+            }
+ 
+            while (pgram.RtoD) // Roman to decimal
+            {
+                pgram.resetVals();
+                Console.WriteLine(pgram.macrons);
+                pgram.receiveInput();
+                pgram.toDecimal();
+ 
+                Console.WriteLine();
+                Console.WriteLine("In base-10 decimal:" + pgram.val);
+                Console.ReadLine();
+            }
+        }
+ 
+        /// <summary>
+        /// Provides information to the user.
+        /// </summary>
+        public void begin()
+        {
+            Console.WriteLine("I = 1");
+            Console.WriteLine("V = 5");
+            Console.WriteLine("X = 10");
+            Console.WriteLine("L = 50");
+            Console.WriteLine("C = 100");
+            Console.WriteLine("D = 500");
+            Console.WriteLine("M = 1000");
+            Console.WriteLine("Any numerals with lines above: multiply by 1000");
+            Console.WriteLine();
+ 
+            Console.WriteLine("Would you like to convert from Roman numerals to decimal, or vice versa?");
+            Console.WriteLine("Type true or false");
+        }
+ 
+        /// <summary>
+        /// Sets values used to convert from decimal to Roman numerals.
+        /// </summary>
+        public void initializeVals()
+        {
+            if (input.Length == 1)
+                ones = (int)char.GetNumericValue(input[input.Length - 1]);
+            if (input.Length == 2)
+            {
+                ones = (int)char.GetNumericValue(input[input.Length - 1]);
+                tens = (int)char.GetNumericValue(input[input.Length - 2]);
+            }
+            if (input.Length == 3)
+            {
+                ones = (int)char.GetNumericValue(input[input.Length - 1]);
+                tens = (int)char.GetNumericValue(input[input.Length - 2]);
+                hundreds = (int)char.GetNumericValue(input[input.Length - 3]);
+            }
+            if (input.Length == 4)
+            {
+                ones = (int)char.GetNumericValue(input[input.Length - 1]);
+                tens = (int)char.GetNumericValue(input[input.Length - 2]);
+                hundreds = (int)char.GetNumericValue(input[input.Length - 3]);
+                thousands = (int)char.GetNumericValue(input[input.Length - 4]);
+            }
+        }
+ 
+        /// <summary>
+        /// Reset all class properties.
+        /// </summary>
+        public void resetVals()
+        {
+            ones = 0;
+            tens = 0;
+            hundreds = 0;
+            thousands = 0;
+            outputOnes = "";
+            outputTens = "";
+            outputHundreds = "";
+            outputThousands = "";
+            output = "";
+            macrons = "";
+            val = 0;
+        }
+ 
+        /// <summary>
+        /// Receive user input.
+        /// </summary>
+        public void receiveInput()
+        {
+            if (!RtoD)
+            {
+                int a;
+                Console.WriteLine("Enter a number between 1 and 9999 to convert it to Roman numerals.");
+                input = Console.ReadLine();
+ 
+                if (int.TryParse(input, out a))
+                {
+                    inputInt = int.Parse(input);
+                }
+                else
+                {
+                    Console.WriteLine("Not an integer.");
+                    receiveInput();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Enter a Roman numeral (less than 4000) to convert it to decimal.");
+                input = Console.ReadLine();
+            }
+        }
+ 
+        #region DtoR Conversion
+        public void firstNumber()
+        {
+            if(ones == 0)
+            {
+                return;
+            }
+            else if (ones < 4)
+            {
+                outputOnes += "I";
+                ones -= 1;
+            }
+            else if (ones == 4)
+            {
+                outputOnes += "IV";
+                ones -= 4;
+            }
+            else if (ones == 5)
+            {
+                outputOnes += "V";
+                ones = 0;
+            }
+            else if (ones > 5 && ones < 9)
+            {
+                outputOnes += "V";
+                ones -= 5;
+            }
+            else if (ones == 9)
+            {
+                outputOnes += "IX";
+                ones = 0;
+            }
+ 
+            firstNumber();
+        }
+ 
+        public void secondNumber()
+        {
+            if (tens == 0)
+            {
+                return;
+            }
+            else if (tens < 4)
+            {
+                outputTens += "X";
+                tens -= 1;
+            }
+            else if (tens == 4)
+            {
+                outputTens += "XL";
+                tens = 0;
+            }
+            else if (tens == 5)
+            {
+                outputTens += "L";
+                tens = 0;
+            }
+            else if (tens > 5 && tens < 9)
+            {
+                outputTens += "L";
+                tens -= 5;
+            }
+            else if (tens == 9)
+            {
+                outputTens += "XC";
+                tens = 0;
+            }
+ 
+            secondNumber();
+        }
+ 
+        public void thirdNumber()
+        {
+            if (hundreds == 0)
+            {
+                return;
+            }
+            else if (hundreds < 4)
+            {
+                outputHundreds += "C";
+                hundreds -= 1;
+            }
+            else if (hundreds == 4)
+            {
+                outputHundreds += "CD";
+                hundreds = 0;
+            }
+            else if (hundreds == 5)
+            {
+                outputHundreds += "D";
+                hundreds = 0;
+            }
+            else if (hundreds > 5 && hundreds < 9)
+            {
+                outputHundreds += "D";
+                hundreds -= 5;
+            }
+            else if (hundreds == 9)
+            {
+                outputHundreds += "CM";
+                hundreds = 0;
+            }
+ 
+            thirdNumber();
+        }
+ 
+        public void fourthNumber()
+        {
+            if (thousands == 0)
+            {
+                return;
+            }
+            else if (thousands < 4)
+            {
+                outputThousands += "I";
+                thousands -= 1;
+            }
+            else if (thousands == 4)
+            {
+                outputThousands += "IV";
+                thousands -= 4;
+            }
+            else if (thousands == 5)
+            {
+                outputThousands += "V";
+                thousands = 0;
+            }
+            else if (thousands > 5 && thousands < 9)
+            {
+                outputThousands += "V";
+                thousands -= 5;
+            }
+            else if (thousands == 9)
+            {
+                outputThousands += "IX";
+                thousands = 0;
+            }
+ 
+            fourthNumber();
+        }
+ 
+        public void getMacronPosition()
+        {
+            if(outputThousands.Length == 1)
+            {
+                macrons = "                   " + "_";
+            }
+            else if(outputThousands.Length == 2)
+            {
+                macrons = "                   " + "__";
+            }
+            else if (outputThousands.Length == 3)
+            {
+                macrons = "                   " + "___";
+            }
+            else if (outputThousands.Length == 4)
+            {
+                macrons = "                   " + "____";
+            }
+        }
+ 
+        #endregion
+ 
+        #region RtoD Conversion
+        /// <summary>
+        /// Conversion from Roman numerals to decimal.
+        /// </summary>
+        public void toDecimal()
+        {
+            bool add;
+            bool skip = false;
+ 
+           for (int i=input.Length-1; i>=0; i--)
+            {
+                add = comparePrevious(i);
+ 
+                if (skip)
+                {
+                    skip = false;
+                    continue;
+                }
+                else if (add)
+                {
+                    if (input[i] == 'I')
+                    {
+                        val += 1;
+                    }
+                    else if (input[i] == 'V')
+                    {
+                        val += 5;
+                    }
+                    else if (input[i] == 'X')
+                    {
+                        val += 10;
+                    }
+                    else if (input[i] == 'L')
+                    {
+                        val += 50;
+                    }
+                    else if (input[i] == 'C')
+                    {
+                        val += 100;
+                    }
+                    else if (input[i] == 'D')
+                    {
+                        val += 500;
+                    }
+                    else if (input[i] == 'M')
+                    {
+                        val += 1000;
+                    }
+                }
+                else
+                {
+                    if (i == 0)
+                        continue;
+                    skip = true;
+                    char sub1 = input[i];
+                    char sub2 = input[i - 1];
+                    int sub3;
+                    int sub4;
+ 
+                    if (sub1 == 'I')
+                    {
+                        sub3 = 1;
+                    }
+                    else if (sub1 == 'V')
+                    {
+                        sub3 = 5;
+                    }
+                    else if (sub1 == 'X')
+                    {
+                        sub3 = 10;
+                    }
+                    else if (sub1 == 'L')
+                    {
+                        sub3 = 50;
+                    }
+                    else if (sub1 == 'C')
+                    {
+                        sub3 = 100;
+                    }
+                    else if (sub1 == 'D')
+                    {
+                        sub3 = 500;
+                    }
+                    else //(sub1 == 'M')
+                    {
+                        sub3 = 1000;
+                    }
+ 
+                    if (sub2 == 'I')
+                    {
+                        sub4 = 1;
+                    }
+                    else if (sub2 == 'V')
+                    {
+                        sub4 = 5;
+                    }
+                    else if (sub2 == 'X')
+                    {
+                        sub4 = 10;
+                    }
+                    else if (sub2 == 'L')
+                    {
+                        sub4 = 50;
+                    }
+                    else if (sub2 == 'C')
+                    {
+                        sub4 = 100;
+                    }
+                    else if (sub2 == 'D')
+                    {
+                        sub4 = 500;
+                    }
+                    else //(sub2 == 'M')
+                    {
+                        sub4 = 1000;
+                    }
+                    val += sub3 - sub4;
+                }
+            }
+        }
+ 
+        /// <summary>
+        /// Used to decide if the subtraction rule is necessary.
+        /// </summary>
+        /// <param name="i">Index of the current character in the input string.</param>
+        /// <returns></returns>
+        public bool comparePrevious(int i)
+        {
+            if (i == 0)
+                return true;
+ 
+            char sub1 = input[i];
+            char sub2 = input[i - 1];
+            int sub3;
+            int sub4;
+ 
+            if (sub1 == 'I')
+            {
+                sub3 = I;
+            }
+            else if (sub1 == 'V')
+            {
+                sub3 = V;
+            }
+            else if (sub1 == 'X')
+            {
+                sub3 = X;
+            }
+            else if (sub1 == 'L')
+            {
+                sub3 = L;
+            }
+            else if (sub1 == 'C')
+            {
+                sub3 = C;
+            }
+            else if (sub1 == 'D')
+            {
+                sub3 = D;
+            }
+            else //(sub1 == 'M')
+            {
+                sub3 = M;
+            }
+ 
+            if (sub2 == 'I')
+            {
+                sub4 = I;
+            }
+            else if (sub2 == 'V')
+            {
+                sub4 = V;
+            }
+            else if (sub2 == 'X')
+            {
+                sub4 = X;
+            }
+            else if (sub2 == 'L')
+            {
+                sub4 = L;
+            }
+            else if (sub2 == 'C')
+            {
+                sub4 = C;
+            }
+            else if (sub2 == 'D')
+            {
+                sub4 = D;
+            }
+            else //(sub2 == 'M')
+            {
+                sub4 = M;
+            }
+ 
+            if (sub3 > sub4)
+                return false;
+            else
+                return true;
+        }
+        #endregion
+    }
+}
